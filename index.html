@@ -1,755 +1,841 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Processamento de Imagens</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f0f0f0;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: rgb(217, 251, 255);
+      }
 
-        .controls {
-            margin: 10px 0;
-        }
+      .controls {
+        margin: 10px 0;
+      }
 
-        .canvas-container {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-        }
+      .canvas-container {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+      }
 
-        canvas {
-            border: 1px solid black;
-            margin: 10px;
-            max-width: 90vw;
-            max-height: 90vh;
-        }
+      canvas {
+        border: 1px solid black;
+        margin: 10px;
+        max-width: 90vw;
+        max-height: 90vh;
+      }
 
-        #filters {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+      #filters {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-        select,
-        input,
-        button {
-            margin: 5px;
-            padding: 5px;
-            font-size: 16px;
-        }
+      select,
+      input,
+      button {
+        margin: 5px;
+        padding: 5px;
+        font-size: 16px;
+      }
+
+      #mouse{
+        text-align: center;
+      }
+
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <h1>Ferramentas de Processamento de Imagens</h1>
     <div class="controls">
-        <input type="file" id="upload" accept="image/*">
-        <button onclick="resetImage()">Resetar Imagem</button>
+      <input type="file" id="upload" accept="image/*" />
+      <button onclick="resetarImage()">Resetar Imagem</button>
     </div>
     <div class="canvas-container">
-        <canvas id="inputCanvas" width="256" height="256"></canvas>
-        <canvas id="outputCanvas" width="256" height="256"></canvas>
+      <canvas id="inputCanvas" width="256" height="256"></canvas>
+      <canvas id="outputCanvas" width="256" height="256"></canvas>
     </div>
+
+    <div id="mouse">
+    <p id="posicaoMouseInput">Nivel de Cinza Input: 0</p>
+    <p id="posicaoMouseOutput">Nivel de Cinza Output: 0</p>
+    </div>
+
     <div class="controls">
-        <div id="filters">
-            <select id="filterSelect" onchange="applySelectedFilter()">
-                <option value="">Selecione um Filtro</option>
-                <option value="negative">Filtro Negativo</option>
-                <option value="log">Filtro Logaritmo</option>
-                <option value="invLog">Filtro Logaritmo Inverso</option>
-                <option value="power">Filtro Potência</option>
-                <option value="root">Filtro Raiz</option>
-                <option value="nearest512">Aumentar 512x512 (Vizinho Mais Próximo)</option>
-                <option value="bilinear512">Aumentar 512x512 (Interpolação Bilinear)</option>
-                <option value="nearest1024">Aumentar 1024x1024 (Vizinho Mais Próximo)</option>
-                <option value="bilinear1024">Aumentar 1024x1024 (Interpolação Bilinear)</option>
-                <option value="horizontal">Espelhamento Horizontal</option>
-                <option value="vertical">Espelhamento Vertical</option>
-                <option value="rotate90">Rotação 90º Horário</option>
-                <option value="rotate-90">Rotação 90º Anti-Horário</option>
-                <option value="rotate180">Rotação 180º</option>
-                <option value="expand">Filtro de Expansão</option>
-                <option value="compress">Filtro de Compressão</option>
-                <option value="equalize">Equalizar Histograma</option>
-                <option value="mean">Filtro da Média</option>
-                <option value="median">Filtro da Mediana</option>
-                <option value="mode">Filtro da Moda</option>
-                <option value="min">Filtro MIN</option>
-                <option value="max">Filtro MAX</option>
-                <option value="laplacian">Operador Laplaciano</option>
-                <option value="highBoost">Operador High Boost</option>
-                <option value="prewitt">Operador Prewitt</option>
-                <option value="sobel">Operador Sobel</option>
-            </select>
-            <label>Gamma: <input type="number" id="gamma" step="0.1" value="1"></label>
-            <label>Valor a: <input type="number" id="valorA" step="0.1" value="1"></label>
-            <label>Valor b: <input type="number" id="valorB" step="0.1" value="0"></label>
-        </div>
+      <div id="filters">
+        <label for="filters">Escolha um filtro:</label>
+        <select id="filterSelect">
+          <option value="negativo">Filtro Negativo</option>
+          <option value="log">Filtro Logaritmo</option>
+          <option value="invLog">Filtro Logaritmo Inverso</option>
+          <option value="pot">Filtro Potência</option>
+          <option value="raiz">Filtro Raiz</option>
+          <option value="near512">Aumentar 512x512 (Vizinho Mais Próximo)</option>
+          <option value="bilinear512">Aumentar 512x512 (Interpolação Bilinear)</option>
+          <option value="near1024">Aumentar 1024x1024 (Vizinho Mais Próximo)</option>
+          <option value="bilinear1024">Aumentar 1024x1024 (Interpolação Bilinear)</option>
+          <option value="horizontal">Espelhamento Horizontal</option>
+          <option value="vertical">Espelhamento Vertical</option>
+          <option value="rodar90">Rotação 90º Horário</option>
+          <option value="rodar-90">Rotação 90º Anti-Horário</option>
+          <option value="rodar180">Rotação 180º</option>
+          <option value="expandor">Filtro de Expansão</option>
+          <option value="comprimir">Filtro de Compressão</option>
+          <option value="equalizar">Equalizar Histograma</option>
+          <option value="media">Filtro da Média</option>
+          <option value="mediana">Filtro da Mediana</option>
+          <option value="moda">Filtro da Moda</option>
+          <option value="minimo">Filtro MIN</option>
+          <option value="maximo">Filtro MAX</option>
+          <option value="laplaciano">Operador Laplaciano</option>
+          <option value="highBoost">Operador High Boost</option>
+          <option value="prewitt">Operador Prewitt</option>
+          <option value="sobel">Operador Sobel</option>
+        </select>
+        <button onclick="applySelectedFilter()">Aplicar filtro</button>
+        <br>
+        <label
+          >Gamma: <input type="number" id="gamma" step="0.1" value="1"
+        /></label>
+        <label
+          >Valor a: <input type="number" id="valorA" step="0.1" value="1"
+        /></label>
+        <label
+          >Valor b: <input type="number" id="valorB" step="0.1" value="0"
+        /></label>
+      </div>
     </div>
+
     <canvas id="histogram"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        let originalImage = null;
-        const inputCanvas = document.getElementById('inputCanvas');
-        const inputCtx = inputCanvas.getContext('2d');
-        const outputCanvas = document.getElementById('outputCanvas');
-        const outputCtx = outputCanvas.getContext('2d');
+      let originalImage = null;
+      const inputCanvas = document.getElementById("inputCanvas");
+      const inputCtx = inputCanvas.getContext("2d");
 
-        document.getElementById('upload').addEventListener('change', handleImageUpload);
+      const outputCanvas = document.getElementById("outputCanvas");
+      const outputCtx = outputCanvas.getContext("2d");
 
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const img = new Image();
-                img.onload = function () {
-                    inputCanvas.width = img.width;
-                    inputCanvas.height = img.height;
-                    inputCtx.drawImage(img, 0, 0);
-                    outputCanvas.width = img.width;
-                    outputCanvas.height = img.height;
-                    originalImage = inputCtx.getImageData(0, 0, inputCanvas.width, inputCanvas.height);
+      document
+        .getElementById("upload")
+        .addEventListener("change", handleImageUpload);
+
+      function handleImageUpload(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            inputCanvas.width = img.width;
+            inputCanvas.height = img.height;
+            inputCtx.drawImage(img, 0, 0);
+            outputCanvas.width = img.width;
+            outputCanvas.height = img.height;
+            originalImage = inputCtx.getImageData(
+              0,
+              0,
+              inputCanvas.width,
+              inputCanvas.height
+            );
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function mostrarMouseInput(event) {
+        const rectInp = inputCanvas.getBoundingClientRect();
+        const scalaX = inputCanvas.width / rectInp.width;
+        const scalaY = inputCanvas.height / rectInp.height;
+        const mouseX = Math.floor((event.clientX - rectInp.left) * scalaX);
+        const mouseY = Math.floor((event.clientY - rectInp.top) * scalaY);
+
+        // Obter o contexto 2D do canvas
+        const ctx = inputCanvas.getContext('2d');
+        // Obter o pixel data do ponto onde o mouse está
+        const pixelInput = ctx.getImageData(mouseX, mouseY, 1, 1).data;
+        // Calcular o nível de cinza
+        const nivelCinzaInp = Math.floor((pixelInput[0] + pixelInput[1] + pixelInput[2]) / 3);
+
+        const textoInput = document.getElementById("posicaoMouseInput");
+        textoInput.textContent = `PosX: ${mouseX} PosY: ${mouseY} NC Intput: ${nivelCinzaInp}`
+
+      }
+
+      function mostrarMouseOutput(event){
+        const rectOut = outputCanvas.getBoundingClientRect();
+        const scalaXX = outputCanvas.width / rectOut.width;
+        const scalaYY = outputCanvas.height / rectOut.height;
+        const mouseXX = Math.floor((event.clientX - rectOut.left) * scalaXX);
+        const mouseYY = Math.floor((event.clientY - rectOut.top) * scalaYY);
+
+        const ctxx = outputCanvas.getContext('2d');
+        const pixelDataOut = ctxx.getImageData(mouseXX, mouseYY, 1, 1).data;
+        const nivelCinzaOut = Math.floor((pixelDataOut[0] + pixelDataOut[1] + pixelDataOut[2])/3);
+        const textoOutput = document.getElementById("posicaoMouseOutput");
+        textoOutput.textContent = `PosX: ${mouseXX} PosY: ${mouseYY} NC Output: ${nivelCinzaOut}`
+      }
+
+      // Adicionar evento de mousemove ao inputCanvas e Outputcanvas
+      inputCanvas.addEventListener("mousemove", mostrarMouseInput);
+      outputCanvas.addEventListener("mousemove", mostrarMouseOutput);
+
+
+
+      function resetarImage() {
+        if (originalImage) {
+          inputCtx.putImageData(originalImage, 0, 0);
+          outputCtx.putImageData(originalImage, 0, 0);
+        }
+      }
+
+      function applySelectedFilter() {
+        const selectedFilter = document.getElementById("filterSelect").value;
+        applyFilter(selectedFilter);
+      }
+
+      function applyFilter(type) {
+        if (type === "") return;
+
+        const imageData = inputCtx.getImageData(
+          0,
+          0,
+          inputCanvas.width,
+          inputCanvas.height
+        );
+        const data = imageData.data;
+
+        if (type === "negativo") {
+          negativo(data);
+        } else if (type === "log") {
+          log(data);
+        } else if (type === "invLog") {
+          logInverso(data);
+        } else if (type === "pot") {
+          potencia(data);
+        } else if (type === "raiz") {
+          raiz(data);
+        } else if (type.startsWith("near")) {
+          const size = parseInt(type.replace("near", ""), 10);
+          resizeImage("nearest", size);
+          return;
+        } else if (type.startsWith("bilinear")) {
+          const size = parseInt(type.replace("bilinear", ""), 10);
+          resizeImage("bilinear", size);
+          return;
+        } else if (type === "horizontal") {
+          espelhamento("horizontal");
+          return;
+        } else if (type === "vertical") {
+          espelhamento("vertical");
+          return;
+        } else if (type.startsWith("rodar")) {
+          const degrees = parseInt(type.replace("rodar", ""), 10);
+          rodar_imagem(degrees);
+          return;
+        } else if (type === "expandir") {
+          expandir(data);
+        } else if (type === "comprimir") {
+          compressao(data);
+        } else if (type === "equalizar") {
+          equalizacao(data);
+        } else if (type === "media") {
+          media(data);
+        } else if (type === "mediana") {
+          media(data);
+        } else if (type === "moda") {
+          moda(data);
+        } else if (type === "minimo") {
+          minimo(data);
+        } else if (type === "maximo") {
+          maximo(data);
+        } else if (type === "laplaciano") {
+          laplaciano(data);
+        } else if (type === "highBoost") {
+          high_boost(data);
+        } else if (type === "prewitt") {
+          filtro_prewitt(data);
+        } else if (type === "sobel") {
+          filtro_sobel(data);
+        }
+
+        outputCtx.putImageData(imageData, 0, 0);
+      }
+
+      function negativo(data) {
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = 255 - data[i]; // R
+          data[i + 1] = 255 - data[i + 1]; // G
+          data[i + 2] = 255 - data[i + 2]; // B
+        }
+      }
+
+      function log(data) {
+        const c = 255 / Math.log(256);
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = c * Math.log(1 + data[i]);
+          data[i + 1] = c * Math.log(1 + data[i + 1]);
+          data[i + 2] = c * Math.log(1 + data[i + 2]);
+        }
+      }
+
+      function logInverso(data) {
+        const c = 255 / Math.log(256);
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = Math.exp(data[i] / c) - 1;
+
+          data[i + 1] = Math.exp(data[i + 1] / c) - 1;
+          data[i + 2] = Math.exp(data[i + 2] / c) - 1;
+        }
+      }
+
+      function potencia(data) {
+        const gamma = parseFloat(document.getElementById("gamma").value);
+        const c = 255 / Math.pow(255, gamma);
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = c * Math.pow(data[i], gamma);
+          data[i + 1] = c * Math.pow(data[i + 1], gamma);
+          data[i + 2] = c * Math.pow(data[i + 2], gamma);
+        }
+      }
+
+      function raiz(data) {
+        const gamma = parseFloat(document.getElementById("gamma").value);
+        const c = 255 / Math.pow(255, 1 / gamma);
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = c * Math.pow(data[i], 1 / gamma);
+          data[i + 1] = c * Math.pow(data[i + 1], 1 / gamma);
+          data[i + 2] = c * Math.pow(data[i + 2], 1 / gamma);
+        }
+      }
+
+      function resizeImage(method, size) {
+        const imgData = inputCtx.getImageData(
+          0,
+          0,
+          inputCanvas.width,
+          inputCanvas.height
+        );
+        const newCanvas = document.createElement("canvas");
+        newCanvas.width = size;
+        newCanvas.height = size;
+        const newCtx = newCanvas.getContext("2d");
+        if (method === "nearest") {
+          nearestNeighborResampling(imgData, newCtx, size);
+        } else if (method === "bilinear") {
+          bilinearInterpolationResampling(imgData, newCtx, size);
+        }
+        outputCanvas.width = size;
+        outputCanvas.height = size;
+        outputCtx.drawImage(newCanvas, 0, 0);
+      }
+
+      function nearestNeighborResampling(imgData, newCtx, newSize) {
+        const oldWidth = imgData.width;
+        const oldHeight = imgData.height;
+        const newImgData = newCtx.createImageData(newSize, newSize);
+        const data = newImgData.data;
+        for (let y = 0; y < newSize; y++) {
+          for (let x = 0; x < newSize; x++) {
+            const oldX = Math.floor((x * oldWidth) / newSize);
+            const oldY = Math.floor((y * oldHeight) / newSize);
+            const oldIndex = (oldY * oldWidth + oldX) * 4;
+            const newIndex = (y * newSize + x) * 4;
+            data[newIndex] = imgData.data[oldIndex];
+            data[newIndex + 1] = imgData.data[oldIndex + 1];
+            data[newIndex + 2] = imgData.data[oldIndex + 2];
+            data[newIndex + 3] = imgData.data[oldIndex + 3];
+          }
+        }
+        newCtx.putImageData(newImgData, 0, 0);
+      }
+
+      function interpolacaoBilinear(imgData, newCtx, newSize) {
+        const oldWidth = imgData.width;
+        const oldHeight = imgData.height;
+        const newImgData = newCtx.createImageData(newSize, newSize);
+        const data = newImgData.data;
+        for (let y = 0; y < newSize; y++) {
+          for (let x = 0; x < newSize; x++) {
+            const gx = x / (newSize / oldWidth);
+            const gy = y / (newSize / oldHeight);
+            const gxi = Math.floor(gx);
+            const gyi = Math.floor(gy);
+            const result = [0, 0, 0, 0];
+            const colors = [];
+
+            for (let rgb = 0; rgb < 4; rgb++) {
+              const c00 = imgData.data[(gyi * oldWidth + gxi) * 4 + rgb];
+              const c10 = imgData.data[(gyi * oldWidth + (gxi + 1)) * 4 + rgb];
+              const c01 = imgData.data[((gyi + 1) * oldWidth + gxi) * 4 + rgb];
+              const c11 =
+                imgData.data[((gyi + 1) * oldWidth + (gxi + 1)) * 4 + rgb];
+              const dx = gx - gxi;
+              const dy = gy - gyi;
+              const s0 = c00 * (1 - dx) + c10 * dx;
+              const s1 = c01 * (1 - dx) + c11 * dx;
+              result[rgb] = s0 * (1 - dy) + s1 * dy;
+            }
+
+            const newIndex = (y * newSize + x) * 4;
+            data[newIndex] = result[0];
+            data[newIndex + 1] = result[1];
+            data[newIndex + 2] = result[2];
+            data[newIndex + 3] = result[3];
+          }
+        }
+        newCtx.putImageData(newImgData, 0, 0);
+      }
+
+      function espelhamento(direction) {
+        const imageData = inputCtx.getImageData(
+          0,
+          0,
+          inputCanvas.width,
+          inputCanvas.height
+        );
+        const data = imageData.data;
+        const width = imageData.width;
+        const height = imageData.height;
+        const mirroredData = new Uint8ClampedArray(data.length);
+
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const index = (y * width + x) * 4;
+            let mirroredIndex;
+            if (direction === "horizontal") {
+              mirroredIndex = (y * width + (width - 1 - x)) * 4;
+            } else if (direction === "vertical") {
+              mirroredIndex = ((height - 1 - y) * width + x) * 4;
+            }
+            mirroredData[mirroredIndex] = data[index];
+            mirroredData[mirroredIndex + 1] = data[index + 1];
+            mirroredData[mirroredIndex + 2] = data[index + 2];
+            mirroredData[mirroredIndex + 3] = data[index + 3];
+          }
+        }
+
+        outputCtx.putImageData(
+          new ImageData(mirroredData, width, height),
+          0,
+          0
+        );
+      }
+
+      function rodar_imagem(degrees) {
+        const imageData = inputCtx.getImageData(
+          0,
+          0,
+          inputCanvas.width,
+          inputCanvas.height
+        );
+        const width = imageData.width;
+        const height = imageData.height;
+        const newCanvas = document.createElement("canvas");
+        newCanvas.width = degrees % 180 === 0 ? width : height;
+        newCanvas.height = degrees % 180 === 0 ? height : width;
+        const newCtx = newCanvas.getContext("2d");
+        newCtx.translate(newCanvas.width / 2, newCanvas.height / 2);
+        newCtx.rotate((degrees * Math.PI) / 180);
+        newCtx.drawImage(inputCanvas, -width / 2, -height / 2);
+        outputCanvas.width = newCanvas.width;
+        outputCanvas.height = newCanvas.height;
+        outputCtx.drawImage(newCanvas, 0, 0);
+      }
+
+      function expandir(data) {
+        const a = parseFloat(document.getElementById("valorA").value);
+        const b = parseFloat(document.getElementById("valorB").value);
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = a * data[i] + b;
+          data[i + 1] = a * data[i + 1] + b;
+          data[i + 2] = a * data[i + 2] + b;
+        }
+      }
+
+      function compressao(data) {
+        const a = parseFloat(document.getElementById("valorA").value);
+        const b = parseFloat(document.getElementById("valorB").value);
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = data[i] / a - b;
+          data[i + 1] = data[i + 1] / a - b;
+          data[i + 2] = data[i + 2] / a - b;
+        }
+      }
+
+      function equalizacao(data) {
+        const histogram = new Array(256).fill(0);
+        for (let i = 0; i < data.length; i += 4) {
+          histogram[data[i]]++;
+        }
+
+        const cdf = new Array(256).fill(0);
+        cdf[0] = histogram[0];
+        for (let i = 1; i < 256; i++) {
+          cdf[i] = cdf[i - 1] + histogram[i];
+        }
+
+        const cdfMin = cdf.find((value) => value > 0);
+        const totalPixels = data.length / 4;
+        const equalized = new Uint8ClampedArray(256);
+        for (let i = 0; i < 256; i++) {
+          equalized[i] = Math.round(
+            ((cdf[i] - cdfMin) / (totalPixels - cdfMin)) * 255
+          );
+        }
+
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = equalized[data[i]];
+          data[i + 1] = equalized[data[i + 1]];
+          data[i + 2] = equalized[data[i + 2]];
+        }
+      }
+
+      function media(data) {
+        const size = 3;
+        const half = Math.floor(size / 2);
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const newData = new Uint8ClampedArray(data.length);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            let r = 0,
+              g = 0,
+              b = 0,
+              count = 0;
+            for (let j = -half; j <= half; j++) {
+              for (let i = -half; i <= half; i++) {
+                const ny = y + j;
+                const nx = x + i;
+                if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
+                  const index = (ny * width + nx) * 4;
+                  r += data[index];
+                  g += data[index + 1];
+                  b += data[index + 2];
+                  count++;
                 }
-                img.src = e.target.result;
+              }
             }
-            reader.readAsDataURL(file);
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = r / count;
+            newData[newIndex + 1] = g / count;
+            newData[newIndex + 2] = b / count;
+            newData[newIndex + 3] = data[newIndex + 3];
+          }
         }
-
-        function resetImage() {
-            if (originalImage) {
-                inputCtx.putImageData(originalImage, 0, 0);
-                outputCtx.putImageData(originalImage, 0, 0);
-            }
+        for (let i = 0; i < data.length; i++) {
+          data[i] = newData[i];
         }
+      }
 
-        function applySelectedFilter() {
-            const selectedFilter = document.getElementById('filterSelect').value;
-            applyFilter(selectedFilter);
-        }
-
-        function applyFilter(type) {
-            if (type === '') return;
-
-            const imageData = inputCtx.getImageData(0, 0, inputCanvas.width, inputCanvas.height);
-            const data = imageData.data;
-
-            if (type === 'negative') {
-                negativeFilter(data);
-            } else if (type === 'log') {
-                logFilter(data);
-            } else if (type === 'invLog') {
-                invLogFilter(data);
-            } else if (type === 'power') {
-                powerFilter(data);
-            } else if (type === 'root') {
-                rootFilter(data);
-            } else if (type.startsWith('nearest')) {
-                const size = parseInt(type.replace('nearest', ''), 10);
-                resizeImage('nearest', size);
-                return;
-            } else if (type.startsWith('bilinear')) {
-                const size = parseInt(type.replace('bilinear', ''), 10);
-                resizeImage('bilinear', size);
-                return;
-            } else if (type === 'horizontal') {
-                mirrorImage('horizontal');
-                return;
-            } else if (type === 'vertical') {
-                mirrorImage('vertical');
-                return;
-            } else if (type.startsWith('rotate')) {
-                const degrees = parseInt(type.replace('rotate', ''), 10);
-                rotateImage(degrees);
-                return;
-            } else if (type === 'expand') {
-                expandFilter(data);
-            } else if (type === 'compress') {
-                compressFilter(data);
-            } else if (type === 'equalize') {
-                equalizeHistogram(data);
-            } else if (type === 'mean') {
-                meanFilter(data);
-            } else if (type === 'median') {
-                medianFilter(data);
-            } else if (type === 'mode') {
-                modeFilter(data);
-            } else if (type === 'min') {
-                minFilter(data);
-            } else if (type === 'max') {
-                maxFilter(data);
-            } else if (type === 'laplacian') {
-                laplacianFilter(data);
-            } else if (type === 'highBoost') {
-                highBoostFilter(data);
-            } else if (type === 'prewitt') {
-                prewittFilter(data);
-            } else if (type === 'sobel') {
-                sobelFilter(data);
-            }
-
-            outputCtx.putImageData(imageData, 0, 0);
-        }
-
-        function negativeFilter(data) {
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = 255 - data[i]; // R
-                data[i + 1] = 255 - data[i + 1]; // G
-                data[i + 2] = 255 - data[i + 2]; // B
-            }
-        }
-
-        function logFilter(data) {
-            const c = 255 / Math.log(256);
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = c * Math.log(1 + data[i]);
-                data[i + 1] = c * Math.log(1 + data[i + 1]);
-                data[i + 2] = c * Math.log(1 + data[i + 2]);
-            }
-        }
-
-        function invLogFilter(data) {
-            const c = 255 / Math.log(256);
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = Math.exp(data[i] / c) - 1;
-
-
-                data[i + 1] = Math.exp(data[i + 1] / c) - 1;
-                data[i + 2] = Math.exp(data[i + 2] / c) - 1;
-            }
-        }
-
-        function powerFilter(data) {
-            const gamma = parseFloat(document.getElementById('gamma').value);
-            const c = 255 / Math.pow(255, gamma);
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = c * Math.pow(data[i], gamma);
-                data[i + 1] = c * Math.pow(data[i + 1], gamma);
-                data[i + 2] = c * Math.pow(data[i + 2], gamma);
-            }
-        }
-
-        function rootFilter(data) {
-            const gamma = parseFloat(document.getElementById('gamma').value);
-            const c = 255 / Math.pow(255, 1 / gamma);
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = c * Math.pow(data[i], 1 / gamma);
-                data[i + 1] = c * Math.pow(data[i + 1], 1 / gamma);
-                data[i + 2] = c * Math.pow(data[i + 2], 1 / gamma);
-            }
-        }
-
-        function resizeImage(method, size) {
-            const imgData = inputCtx.getImageData(0, 0, inputCanvas.width, inputCanvas.height);
-            const newCanvas = document.createElement('canvas');
-            newCanvas.width = size;
-            newCanvas.height = size;
-            const newCtx = newCanvas.getContext('2d');
-            if (method === 'nearest') {
-                nearestNeighborResampling(imgData, newCtx, size);
-            } else if (method === 'bilinear') {
-                bilinearInterpolationResampling(imgData, newCtx, size);
-            }
-            outputCanvas.width = size;
-            outputCanvas.height = size;
-            outputCtx.drawImage(newCanvas, 0, 0);
-        }
-
-        function nearestNeighborResampling(imgData, newCtx, newSize) {
-            const oldWidth = imgData.width;
-            const oldHeight = imgData.height;
-            const newImgData = newCtx.createImageData(newSize, newSize);
-            const data = newImgData.data;
-            for (let y = 0; y < newSize; y++) {
-                for (let x = 0; x < newSize; x++) {
-                    const oldX = Math.floor(x * oldWidth / newSize);
-                    const oldY = Math.floor(y * oldHeight / newSize);
-                    const oldIndex = (oldY * oldWidth + oldX) * 4;
-                    const newIndex = (y * newSize + x) * 4;
-                    data[newIndex] = imgData.data[oldIndex];
-                    data[newIndex + 1] = imgData.data[oldIndex + 1];
-                    data[newIndex + 2] = imgData.data[oldIndex + 2];
-                    data[newIndex + 3] = imgData.data[oldIndex + 3];
+      function filtro_media(data) {
+        const size = 3;
+        const half = Math.floor(size / 2);
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const newData = new Uint8ClampedArray(data.length);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const r = [],
+              g = [],
+              b = [];
+            for (let j = -half; j <= half; j++) {
+              for (let i = -half; i <= half; i++) {
+                const ny = y + j;
+                const nx = x + i;
+                if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
+                  const index = (ny * width + nx) * 4;
+                  r.push(data[index]);
+                  g.push(data[index + 1]);
+                  b.push(data[index + 2]);
                 }
+              }
             }
-            newCtx.putImageData(newImgData, 0, 0);
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = median(r);
+            newData[newIndex + 1] = median(g);
+            newData[newIndex + 2] = median(b);
+            newData[newIndex + 3] = data[newIndex + 3];
+          }
         }
+        for (let i = 0; i < data.length; i++) {
+          data[i] = newData[i];
+        }
+      }
 
-        function bilinearInterpolationResampling(imgData, newCtx, newSize) {
-            const oldWidth = imgData.width;
-            const oldHeight = imgData.height;
-            const newImgData = newCtx.createImageData(newSize, newSize);
-            const data = newImgData.data;
-            for (let y = 0; y < newSize; y++) {
-                for (let x = 0; x < newSize; x++) {
-                    const gx = x / (newSize / oldWidth);
-                    const gy = y / (newSize / oldHeight);
-                    const gxi = Math.floor(gx);
-                    const gyi = Math.floor(gy);
-                    const result = [0, 0, 0, 0];
-                    const colors = [];
+      function mediana(values) {
+        values.sort((a, b) => a - b);
+        const half = Math.floor(values.length / 2);
+        if (values.length % 2) {
+          return values[half];
+        } else {
+          return (values[half - 1] + values[half]) / 2;
+        }
+      }
 
-                    for (let rgb = 0; rgb < 4; rgb++) {
-                        const c00 = imgData.data[(gyi * oldWidth + gxi) * 4 + rgb];
-                        const c10 = imgData.data[(gyi * oldWidth + (gxi + 1)) * 4 + rgb];
-                        const c01 = imgData.data[((gyi + 1) * oldWidth + gxi) * 4 + rgb];
-                        const c11 = imgData.data[((gyi + 1) * oldWidth + (gxi + 1)) * 4 + rgb];
-                        const dx = gx - gxi;
-                        const dy = gy - gyi;
-                        const s0 = c00 * (1 - dx) + c10 * dx;
-                        const s1 = c01 * (1 - dx) + c11 * dx;
-                        result[rgb] = s0 * (1 - dy) + s1 * dy;
-                    }
-
-                    const newIndex = (y * newSize + x) * 4;
-                    data[newIndex] = result[0];
-                    data[newIndex + 1] = result[1];
-                    data[newIndex + 2] = result[2];
-                    data[newIndex + 3] = result[3];
+      function filtro_moda(data) {
+        const size = 3;
+        const half = Math.floor(size / 2);
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const newData = new Uint8ClampedArray(data.length);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const r = [],
+              g = [],
+              b = [];
+            for (let j = -half; j <= half; j++) {
+              for (let i = -half; i <= half; i++) {
+                const ny = y + j;
+                const nx = x + i;
+                if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
+                  const index = (ny * width + nx) * 4;
+                  r.push(data[index]);
+                  g.push(data[index + 1]);
+                  b.push(data[index + 2]);
                 }
+              }
             }
-            newCtx.putImageData(newImgData, 0, 0);
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = mode(r);
+            newData[newIndex + 1] = mode(g);
+            newData[newIndex + 2] = mode(b);
+            newData[newIndex + 3] = data[newIndex + 3];
+          }
         }
+        for (let i = 0; i < data.length; i++) {
+          data[i] = newData[i];
+        }
+      }
 
-        function mirrorImage(direction) {
-            const imageData = inputCtx.getImageData(0, 0, inputCanvas.width, inputCanvas.height);
-            const data = imageData.data;
-            const width = imageData.width;
-            const height = imageData.height;
-            const mirroredData = new Uint8ClampedArray(data.length);
+      function moda(values) {
+        const counts = {};
+        let maxCount = 0;
+        let mode = values[0];
+        for (const value of values) {
+          counts[value] = (counts[value] || 0) + 1;
+          if (counts[value] > maxCount) {
+            maxCount = counts[value];
+            mode = value;
+          }
+        }
+        return mode;
+      }
 
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const index = (y * width + x) * 4;
-                    let mirroredIndex;
-                    if (direction === 'horizontal') {
-                        mirroredIndex = (y * width + (width - 1 - x)) * 4;
-                    } else if (direction === 'vertical') {
-                        mirroredIndex = ((height - 1 - y) * width + x) * 4;
-                    }
-                    mirroredData[mirroredIndex] = data[index];
-                    mirroredData[mirroredIndex + 1] = data[index + 1];
-                    mirroredData[mirroredIndex + 2] = data[index + 2];
-                    mirroredData[mirroredIndex + 3] = data[index + 3];
+      function minimo(data) {
+        const size = 3;
+        const half = Math.floor(size / 2);
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const newData = new Uint8ClampedArray(data.length);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const r = [],
+              g = [],
+              b = [];
+            for (let j = -half; j <= half; j++) {
+              for (let i = -half; i <= half; i++) {
+                const ny = y + j;
+                const nx = x + i;
+                if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
+                  const index = (ny * width + nx) * 4;
+                  r.push(data[index]);
+                  g.push(data[index + 1]);
+                  b.push(data[index + 2]);
                 }
+              }
             }
-
-            outputCtx.putImageData(new ImageData(mirroredData, width, height), 0, 0);
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = Math.min(...r);
+            newData[newIndex + 1] = Math.min(...g);
+            newData[newIndex + 2] = Math.min(...b);
+            newData[newIndex + 3] = data[newIndex + 3];
+          }
         }
-
-        function rotateImage(degrees) {
-            const imageData = inputCtx.getImageData(0, 0, inputCanvas.width, inputCanvas.height);
-            const width = imageData.width;
-            const height = imageData.height;
-            const newCanvas = document.createElement('canvas');
-            newCanvas.width = degrees % 180 === 0 ? width : height;
-            newCanvas.height = degrees % 180 === 0 ? height : width;
-            const newCtx = newCanvas.getContext('2d');
-            newCtx.translate(newCanvas.width / 2, newCanvas.height / 2);
-            newCtx.rotate(degrees * Math.PI / 180);
-            newCtx.drawImage(inputCanvas, -width / 2, -height / 2);
-            outputCanvas.width = newCanvas.width;
-            outputCanvas.height = newCanvas.height;
-            outputCtx.drawImage(newCanvas, 0, 0);
+        for (let i = 0; i < data.length; i++) {
+          data[i] = newData[i];
         }
+      }
 
-        function expandFilter(data) {
-            const a = parseFloat(document.getElementById('valorA').value);
-            const b = parseFloat(document.getElementById('valorB').value);
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = a * data[i] + b;
-                data[i + 1] = a * data[i + 1] + b;
-                data[i + 2] = a * data[i + 2] + b;
-            }
-        }
-
-        function compressFilter(data) {
-            const a = parseFloat(document.getElementById('valorA').value);
-            const b = parseFloat(document.getElementById('valorB').value);
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = data[i] / a - b;
-                data[i + 1] = data[i + 1] / a - b;
-                data[i + 2] = data[i + 2] / a - b;
-            }
-        }
-
-        function equalizeHistogram(data) {
-            const histogram = new Array(256).fill(0);
-            for (let i = 0; i < data.length; i += 4) {
-                histogram[data[i]]++;
-            }
-
-            const cdf = new Array(256).fill(0);
-            cdf[0] = histogram[0];
-            for (let i = 1; i < 256; i++) {
-                cdf[i] = cdf[i - 1] + histogram[i];
-            }
-
-            const cdfMin = cdf.find(value => value > 0);
-            const totalPixels = data.length / 4;
-            const equalized = new Uint8ClampedArray(256);
-            for (let i = 0; i < 256; i++) {
-                equalized[i] = Math.round((cdf[i] - cdfMin) / (totalPixels - cdfMin) *
-
-                    255);
-            }
-
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = equalized[data[i]];
-                data[i + 1] = equalized[data[i + 1]];
-                data[i + 2] = equalized[data[i + 2]];
-            }
-        }
-
-        function meanFilter(data) {
-            const size = 3;
-            const half = Math.floor(size / 2);
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const newData = new Uint8ClampedArray(data.length);
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    let r = 0, g = 0, b = 0, count = 0;
-                    for (let j = -half; j <= half; j++) {
-                        for (let i = -half; i <= half; i++) {
-                            const ny = y + j;
-                            const nx = x + i;
-                            if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
-                                const index = (ny * width + nx) * 4;
-                                r += data[index];
-                                g += data[index + 1];
-                                b += data[index + 2];
-                                count++;
-                            }
-                        }
-                    }
-                    const newIndex = (y * width + x) * 4;
-                    newData[newIndex] = r / count;
-                    newData[newIndex + 1] = g / count;
-                    newData[newIndex + 2] = b / count;
-                    newData[newIndex + 3] = data[newIndex + 3];
+      function maximo(data) {
+        const size = 3;
+        const half = Math.floor(size / 2);
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const newData = new Uint8ClampedArray(data.length);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const r = [],
+              g = [],
+              b = [];
+            for (let j = -half; j <= half; j++) {
+              for (let i = -half; i <= half; i++) {
+                const ny = y + j;
+                const nx = x + i;
+                if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
+                  const index = (ny * width + nx) * 4;
+                  r.push(data[index]);
+                  g.push(data[index + 1]);
+                  b.push(data[index + 2]);
                 }
+              }
             }
-            for (let i = 0; i < data.length; i++) {
-                data[i] = newData[i];
-            }
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = Math.max(...r);
+            newData[newIndex + 1] = Math.max(...g);
+            newData[newIndex + 2] = Math.max(...b);
+            newData[newIndex + 3] = data[newIndex + 3];
+          }
         }
+        for (let i = 0; i < data.length; i++) {
+          data[i] = newData[i];
+        }
+      }
 
-        function medianFilter(data) {
-            const size = 3;
-            const half = Math.floor(size / 2);
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const newData = new Uint8ClampedArray(data.length);
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const r = [], g = [], b = [];
-                    for (let j = -half; j <= half; j++) {
-                        for (let i = -half; i <= half; i++) {
-                            const ny = y + j;
-                            const nx = x + i;
-                            if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
-                                const index = (ny * width + nx) * 4;
-                                r.push(data[index]);
-                                g.push(data[index + 1]);
-                                b.push(data[index + 2]);
-                            }
-                        }
-                    }
-                    const newIndex = (y * width + x) * 4;
-                    newData[newIndex] = median(r);
-                    newData[newIndex + 1] = median(g);
-                    newData[newIndex + 2] = median(b);
-                    newData[newIndex + 3] = data[newIndex + 3];
+      function laplaciano(data) {
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const newData = new Uint8ClampedArray(data.length);
+        const kernel = [0, -1, 0, -1, 4, -1, 0, -1, 0];
+        applyConvolution(data, newData, width, height, kernel);
+        for (let i = 0; i < data.length; i++) {
+          data[i] = newData[i];
+        }
+      }
+
+      function high_boost(data) {
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const newData = new Uint8ClampedArray(data.length);
+        const kernel = [-1, -1, -1, -1, 9, -1, -1, -1, -1];
+        applyConvolution(
+          data,
+          newData,
+          width,
+          height,
+
+          kernel
+        );
+        for (let i = 0; i < data.length; i++) {
+          data[i] = newData[i];
+        }
+      }
+
+      function aplicar_convolucao(data, newData, width, height, kernel) {
+        const half = Math.floor(Math.sqrt(kernel.length) / 2);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            let r = 0,
+              g = 0,
+              b = 0;
+            for (let j = -half; j <= half; j++) {
+              for (let i = -half; i <= half; i++) {
+                const ny = y + j;
+                const nx = x + i;
+                if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
+                  const index = (ny * width + nx) * 4;
+                  const kernelValue = kernel[(j + half) * 3 + (i + half)];
+                  r += data[index] * kernelValue;
+                  g += data[index + 1] * kernelValue;
+                  b += data[index + 2] * kernelValue;
                 }
+              }
             }
-            for (let i = 0; i < data.length; i++) {
-                data[i] = newData[i];
-            }
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = r;
+            newData[newIndex + 1] = g;
+            newData[newIndex + 2] = b;
+            newData[newIndex + 3] = data[newIndex + 3];
+          }
         }
+      }
 
-        function median(values) {
-            values.sort((a, b) => a - b);
-            const half = Math.floor(values.length / 2);
-            if (values.length % 2) {
-                return values[half];
-            } else {
-                return (values[half - 1] + values[half]) / 2;
-            }
+      function aplicar_customizado() {
+        const kernelStr = document.getElementById("customKernel").value;
+        const kernel = kernelStr.split(",").map(Number);
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const imageData = inputCtx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        const newData = new Uint8ClampedArray(data.length);
+        applyConvolution(data, newData, width, height, kernel);
+        outputCtx.putImageData(new ImageData(newData, width, height), 0, 0);
+      }
+      function filtro_prewitt(data) {
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const newData = new Uint8ClampedArray(data.length);
+
+        const kernelX = [-1, 0, 1, -1, 0, 1, -1, 0, 1];
+
+        const kernelY = [-1, -1, -1, 0, 0, 0, 1, 1, 1];
+
+        applyGradient(data, newData, width, height, kernelX, kernelY);
+        for (let i = 0; i < data.length; i++) {
+          data[i] = newData[i];
         }
+      }
 
-        function modeFilter(data) {
-            const size = 3;
-            const half = Math.floor(size / 2);
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const newData = new Uint8ClampedArray(data.length);
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const r = [], g = [], b = [];
-                    for (let j = -half; j <= half; j++) {
-                        for (let i = -half; i <= half; i++) {
-                            const ny = y + j;
-                            const nx = x + i;
-                            if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
-                                const index = (ny * width + nx) * 4;
-                                r.push(data[index]);
-                                g.push(data[index + 1]);
-                                b.push(data[index + 2]);
-                            }
-                        }
-                    }
-                    const newIndex = (y * width + x) * 4;
-                    newData[newIndex] = mode(r);
-                    newData[newIndex + 1] = mode(g);
-                    newData[newIndex + 2] = mode(b);
-                    newData[newIndex + 3] = data[newIndex + 3];
+      function filtro_sobel(data) {
+        const width = inputCanvas.width;
+        const height = inputCanvas.height;
+        const newData = new Uint8ClampedArray(data.length);
+
+        const kernelX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+
+        const kernelY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+
+        applyGradient(data, newData, width, height, kernelX, kernelY);
+        for (let i = 0; i < data.length; i++) {
+          data[i] = newData[i];
+        }
+      }
+
+      function applyGradient(data, newData, width, height, kernelX, kernelY) {
+        const half = Math.floor(Math.sqrt(kernelX.length) / 2);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            let rX = 0,
+              gX = 0,
+              bX = 0;
+            let rY = 0,
+              gY = 0,
+              bY = 0;
+            for (let j = -half; j <= half; j++) {
+              for (let i = -half; i <= half; i++) {
+                const ny = y + j;
+                const nx = x + i;
+                if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
+                  const index = (ny * width + nx) * 4;
+                  const kernelIndex = (j + half) * 3 + (i + half);
+                  const kernelValueX = kernelX[kernelIndex];
+                  const kernelValueY = kernelY[kernelIndex];
+                  rX += data[index] * kernelValueX;
+                  gX += data[index + 1] * kernelValueX;
+                  bX += data[index + 2] * kernelValueX;
+                  rY += data[index] * kernelValueY;
+                  gY += data[index + 1] * kernelValueY;
+                  bY += data[index + 2] * kernelValueY;
                 }
+              }
             }
-            for (let i = 0; i < data.length; i++) {
-                data[i] = newData[i];
-            }
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = Math.sqrt(rX * rX + rY * rY);
+            newData[newIndex + 1] = Math.sqrt(gX * gX + gY * gY);
+            newData[newIndex + 2] = Math.sqrt(bX * bX + bY * bY);
+            newData[newIndex + 3] = data[newIndex + 3];
+          }
         }
-
-        function mode(values) {
-            const counts = {};
-            let maxCount = 0;
-            let mode = values[0];
-            for (const value of values) {
-                counts[value] = (counts[value] || 0) + 1;
-                if (counts[value] > maxCount) {
-                    maxCount = counts[value];
-                    mode = value;
-                }
-            }
-            return mode;
-        }
-
-        function minFilter(data) {
-            const size = 3;
-            const half = Math.floor(size / 2);
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const newData = new Uint8ClampedArray(data.length);
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const r = [], g = [], b = [];
-                    for (let j = -half; j <= half; j++) {
-                        for (let i = -half; i <= half; i++) {
-                            const ny = y + j;
-                            const nx = x + i;
-                            if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
-                                const index = (ny * width + nx) * 4;
-                                r.push(data[index]);
-                                g.push(data[index + 1]);
-                                b.push(data[index + 2]);
-                            }
-                        }
-                    }
-                    const newIndex = (y * width + x) * 4;
-                    newData[newIndex] = Math.min(...r);
-                    newData[newIndex + 1] = Math.min(...g);
-                    newData[newIndex + 2] = Math.min(...b);
-                    newData[newIndex + 3] = data[newIndex + 3];
-                }
-            }
-            for (let i = 0; i < data.length; i++) {
-                data[i] = newData[i];
-            }
-        }
-
-        function maxFilter(data) {
-            const size = 3;
-            const half = Math.floor(size / 2);
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const newData = new Uint8ClampedArray(data.length);
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const r = [], g = [], b = [];
-                    for (let j = -half; j <= half; j++) {
-                        for (let i = -half; i <= half; i++) {
-                            const ny = y + j;
-                            const nx = x + i;
-                            if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
-                                const index = (ny * width + nx) * 4;
-                                r.push(data[index]);
-                                g.push(data[index + 1]);
-                                b.push(data[index + 2]);
-                            }
-                        }
-                    }
-                    const newIndex = (y * width + x) * 4;
-                    newData[newIndex] = Math.max(...r);
-                    newData[newIndex + 1] = Math.max(...g);
-                    newData[newIndex + 2] = Math.max(...b);
-                    newData[newIndex + 3] = data[newIndex + 3];
-                }
-            }
-            for (let i = 0; i < data.length; i++) {
-                data[i] = newData[i];
-            }
-        }
-
-        function laplacianFilter(data) {
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const newData = new Uint8ClampedArray(data.length);
-            const kernel = [
-                0, -1, 0,
-                -1, 4, -1,
-                0, -1, 0
-            ];
-            applyConvolution(data, newData, width, height, kernel);
-            for (let i = 0; i < data.length; i++) {
-                data[i] = newData[i];
-            }
-        }
-
-        function highBoostFilter(data) {
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const newData = new Uint8ClampedArray(data.length);
-            const kernel = [
-                -1, -1, -1,
-                -1, 9, -1,
-                -1, -1, -1
-            ];
-            applyConvolution(data, newData, width, height,
-
-                kernel);
-            for (let i = 0; i < data.length; i++) {
-                data[i] = newData[i];
-            }
-        }
-
-        function applyConvolution(data, newData, width, height, kernel) {
-            const half = Math.floor(Math.sqrt(kernel.length) / 2);
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    let r = 0, g = 0, b = 0;
-                    for (let j = -half; j <= half; j++) {
-                        for (let i = -half; i <= half; i++) {
-                            const ny = y + j;
-                            const nx = x + i;
-                            if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
-                                const index = (ny * width + nx) * 4;
-                                const kernelValue = kernel[(j + half) * 3 + (i + half)];
-                                r += data[index] * kernelValue;
-                                g += data[index + 1] * kernelValue;
-                                b += data[index + 2] * kernelValue;
-                            }
-                        }
-                    }
-                    const newIndex = (y * width + x) * 4;
-                    newData[newIndex] = r;
-                    newData[newIndex + 1] = g;
-                    newData[newIndex + 2] = b;
-                    newData[newIndex + 3] = data[newIndex + 3];
-                }
-            }
-        }
-
-        function applyCustomFilter() {
-            const kernelStr = document.getElementById('customKernel').value;
-            const kernel = kernelStr.split(',').map(Number);
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const imageData = inputCtx.getImageData(0, 0, width, height);
-            const data = imageData.data;
-            const newData = new Uint8ClampedArray(data.length);
-            applyConvolution(data, newData, width, height, kernel);
-            outputCtx.putImageData(new ImageData(newData, width, height), 0, 0);
-        }
-        function prewittFilter(data) {
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const newData = new Uint8ClampedArray(data.length);
-
-            const kernelX = [
-                -1, 0, 1,
-                -1, 0, 1,
-                -1, 0, 1
-            ];
-
-            const kernelY = [
-                -1, -1, -1,
-                0, 0, 0,
-                1, 1, 1
-            ];
-
-            applyGradient(data, newData, width, height, kernelX, kernelY);
-            for (let i = 0; i < data.length; i++) {
-                data[i] = newData[i];
-            }
-        }
-
-        function sobelFilter(data) {
-            const width = inputCanvas.width;
-            const height = inputCanvas.height;
-            const newData = new Uint8ClampedArray(data.length);
-
-            const kernelX = [
-                -1, 0, 1,
-                -2, 0, 2,
-                -1, 0, 1
-            ];
-
-            const kernelY = [
-                -1, -2, -1,
-                0, 0, 0,
-                1, 2, 1
-            ];
-
-            applyGradient(data, newData, width, height, kernelX, kernelY);
-            for (let i = 0; i < data.length; i++) {
-                data[i] = newData[i];
-            }
-        }
-
-        function applyGradient(data, newData, width, height, kernelX, kernelY) {
-            const half = Math.floor(Math.sqrt(kernelX.length) / 2);
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    let rX = 0, gX = 0, bX = 0;
-                    let rY = 0, gY = 0, bY = 0;
-                    for (let j = -half; j <= half; j++) {
-                        for (let i = -half; i <= half; i++) {
-                            const ny = y + j;
-                            const nx = x + i;
-                            if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
-                                const index = (ny * width + nx) * 4;
-                                const kernelIndex = (j + half) * 3 + (i + half);
-                                const kernelValueX = kernelX[kernelIndex];
-                                const kernelValueY = kernelY[kernelIndex];
-                                rX += data[index] * kernelValueX;
-                                gX += data[index + 1] * kernelValueX;
-                                bX += data[index + 2] * kernelValueX;
-                                rY += data[index] * kernelValueY;
-                                gY += data[index + 1] * kernelValueY;
-                                bY += data[index + 2] * kernelValueY;
-                            }
-                        }
-                    }
-                    const newIndex = (y * width + x) * 4;
-                    newData[newIndex] = Math.sqrt(rX * rX + rY * rY);
-                    newData[newIndex + 1] = Math.sqrt(gX * gX + gY * gY);
-                    newData[newIndex + 2] = Math.sqrt(bX * bX + bY * bY);
-                    newData[newIndex + 3] = data[newIndex + 3];
-                }
-            }
-        }
-
+      }
     </script>
-</body>
-
+  </body>
 </html>
