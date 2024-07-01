@@ -46,10 +46,9 @@
         font-size: 16px;
       }
 
-      #mouse{
+      #mouse {
         text-align: center;
       }
-
     </style>
   </head>
 
@@ -65,8 +64,8 @@
     </div>
 
     <div id="mouse">
-    <p id="posicaoMouseInput">Nivel de Cinza Input: 0</p>
-    <p id="posicaoMouseOutput">Nivel de Cinza Output: 0</p>
+      <p id="posicaoMouseInput">Nivel de Cinza Input: 0</p>
+      <p id="posicaoMouseOutput">Nivel de Cinza Output: 0</p>
     </div>
 
     <div class="controls">
@@ -78,10 +77,18 @@
           <option value="invLog">Filtro Logaritmo Inverso</option>
           <option value="pot">Filtro Potência</option>
           <option value="raiz">Filtro Raiz</option>
-          <option value="near512">Aumentar 512x512 (Vizinho Mais Próximo)</option>
-          <option value="bilinear512">Aumentar 512x512 (Interpolação Bilinear)</option>
-          <option value="near1024">Aumentar 1024x1024 (Vizinho Mais Próximo)</option>
-          <option value="bilinear1024">Aumentar 1024x1024 (Interpolação Bilinear)</option>
+          <option value="near512">
+            Aumentar 512x512 (Vizinho Mais Próximo)
+          </option>
+          <option value="bilinear512">
+            Aumentar 512x512 (Interpolação Bilinear)
+          </option>
+          <option value="near1024">
+            Aumentar 1024x1024 (Vizinho Mais Próximo)
+          </option>
+          <option value="bilinear1024">
+            Aumentar 1024x1024 (Interpolação Bilinear)
+          </option>
           <option value="horizontal">Espelhamento Horizontal</option>
           <option value="vertical">Espelhamento Vertical</option>
           <option value="rodar90">Rotação 90º Horário</option>
@@ -101,7 +108,7 @@
           <option value="sobel">Operador Sobel</option>
         </select>
         <button onclick="applySelectedFilter()">Aplicar filtro</button>
-        <br>
+        <br />
         <label
           >Gamma: <input type="number" id="gamma" step="0.1" value="1"
         /></label>
@@ -160,36 +167,37 @@
         const mouseY = Math.floor((event.clientY - rectInp.top) * scalaY);
 
         // Obter o contexto 2D do canvas
-        const ctx = inputCanvas.getContext('2d');
+        const ctx = inputCanvas.getContext("2d");
         // Obter o pixel data do ponto onde o mouse está
         const pixelInput = ctx.getImageData(mouseX, mouseY, 1, 1).data;
         // Calcular o nível de cinza
-        const nivelCinzaInp = Math.floor((pixelInput[0] + pixelInput[1] + pixelInput[2]) / 3);
+        const nivelCinzaInp = Math.floor(
+          (pixelInput[0] + pixelInput[1] + pixelInput[2]) / 3
+        );
 
         const textoInput = document.getElementById("posicaoMouseInput");
-        textoInput.textContent = `PosX: ${mouseX} PosY: ${mouseY} NC Intput: ${nivelCinzaInp}`
-
+        textoInput.textContent = `PosX: ${mouseX} PosY: ${mouseY} NC Intput: ${nivelCinzaInp}`;
       }
 
-      function mostrarMouseOutput(event){
+      function mostrarMouseOutput(event) {
         const rectOut = outputCanvas.getBoundingClientRect();
         const scalaXX = outputCanvas.width / rectOut.width;
         const scalaYY = outputCanvas.height / rectOut.height;
         const mouseXX = Math.floor((event.clientX - rectOut.left) * scalaXX);
         const mouseYY = Math.floor((event.clientY - rectOut.top) * scalaYY);
 
-        const ctxx = outputCanvas.getContext('2d');
+        const ctxx = outputCanvas.getContext("2d");
         const pixelDataOut = ctxx.getImageData(mouseXX, mouseYY, 1, 1).data;
-        const nivelCinzaOut = Math.floor((pixelDataOut[0] + pixelDataOut[1] + pixelDataOut[2])/3);
+        const nivelCinzaOut = Math.floor(
+          (pixelDataOut[0] + pixelDataOut[1] + pixelDataOut[2]) / 3
+        );
         const textoOutput = document.getElementById("posicaoMouseOutput");
-        textoOutput.textContent = `PosX: ${mouseXX} PosY: ${mouseYY} NC Output: ${nivelCinzaOut}`
+        textoOutput.textContent = `PosX: ${mouseXX} PosY: ${mouseYY} NC Output: ${nivelCinzaOut}`;
       }
 
       // Adicionar evento de mousemove ao inputCanvas e Outputcanvas
       inputCanvas.addEventListener("mousemove", mostrarMouseInput);
       outputCanvas.addEventListener("mousemove", mostrarMouseOutput);
-
-
 
       function resetarImage() {
         if (originalImage) {
@@ -226,11 +234,11 @@
           raiz(data);
         } else if (type.startsWith("near")) {
           const size = parseInt(type.replace("near", ""), 10);
-          resizeImage("nearest", size);
+          redimencionar("nearest", size);
           return;
         } else if (type.startsWith("bilinear")) {
           const size = parseInt(type.replace("bilinear", ""), 10);
-          resizeImage("bilinear", size);
+          redimencionar("bilinear", size);
           return;
         } else if (type === "horizontal") {
           espelhamento("horizontal");
@@ -290,7 +298,7 @@
 
       function logInverso(data) {
         const c = 255 / Math.log(256);
-        for (let i = 0; i < data.length; i += 4) {
+        for (let i = 0; i < data.length; i += 3) {
           data[i] = Math.exp(data[i] / c) - 1;
 
           data[i + 1] = Math.exp(data[i + 1] / c) - 1;
@@ -318,7 +326,7 @@
         }
       }
 
-      function resizeImage(method, size) {
+      function redimencionar(method, size) {
         const imgData = inputCtx.getImageData(
           0,
           0,
@@ -330,16 +338,16 @@
         newCanvas.height = size;
         const newCtx = newCanvas.getContext("2d");
         if (method === "nearest") {
-          nearestNeighborResampling(imgData, newCtx, size);
+          vizinho_proximo(imgData, newCtx, size);
         } else if (method === "bilinear") {
-          bilinearInterpolationResampling(imgData, newCtx, size);
+          interpolacaoBilinear(imgData, newCtx, size);
         }
         outputCanvas.width = size;
         outputCanvas.height = size;
         outputCtx.drawImage(newCanvas, 0, 0);
       }
 
-      function nearestNeighborResampling(imgData, newCtx, newSize) {
+      function vizinho_proximo(imgData, newCtx, newSize) {
         const oldWidth = imgData.width;
         const oldHeight = imgData.height;
         const newImgData = newCtx.createImageData(newSize, newSize);
@@ -706,7 +714,7 @@
         const height = inputCanvas.height;
         const newData = new Uint8ClampedArray(data.length);
         const kernel = [0, -1, 0, -1, 4, -1, 0, -1, 0];
-        applyConvolution(data, newData, width, height, kernel);
+        aplicar_convolucao(data, newData, width, height, kernel);
         for (let i = 0; i < data.length; i++) {
           data[i] = newData[i];
         }
@@ -717,7 +725,7 @@
         const height = inputCanvas.height;
         const newData = new Uint8ClampedArray(data.length);
         const kernel = [-1, -1, -1, -1, 9, -1, -1, -1, -1];
-        applyConvolution(
+        aplicar_convolucao(
           data,
           newData,
           width,
@@ -767,7 +775,7 @@
         const imageData = inputCtx.getImageData(0, 0, width, height);
         const data = imageData.data;
         const newData = new Uint8ClampedArray(data.length);
-        applyConvolution(data, newData, width, height, kernel);
+        aplicar_convolucao(data, newData, width, height, kernel);
         outputCtx.putImageData(new ImageData(newData, width, height), 0, 0);
       }
       function filtro_prewitt(data) {
@@ -779,7 +787,7 @@
 
         const kernelY = [-1, -1, -1, 0, 0, 0, 1, 1, 1];
 
-        applyGradient(data, newData, width, height, kernelX, kernelY);
+        aplicar_gradiente(data, newData, width, height, kernelX, kernelY);
         for (let i = 0; i < data.length; i++) {
           data[i] = newData[i];
         }
@@ -794,13 +802,13 @@
 
         const kernelY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
 
-        applyGradient(data, newData, width, height, kernelX, kernelY);
+        aplicar_gradiente(data, newData, width, height, kernelX, kernelY);
         for (let i = 0; i < data.length; i++) {
           data[i] = newData[i];
         }
       }
 
-      function applyGradient(data, newData, width, height, kernelX, kernelY) {
+      function aplicar_gradiente(data, newData, width, height, kernelX, kernelY) {
         const half = Math.floor(Math.sqrt(kernelX.length) / 2);
         for (let y = 0; y < height; y++) {
           for (let x = 0; x < width; x++) {
